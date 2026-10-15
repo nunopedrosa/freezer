@@ -31,7 +31,7 @@ for arg in "$@"; do
 done
 
 source_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
-files=(index.html style.css app.js manifest.webmanifest icon.svg sw.js)
+files=(index.html style.css app.js print-pdf.js manifest.webmanifest icon.svg sw.js)
 for file in "${files[@]}"; do
   if [[ ! -f "$source_dir/$file" ]]; then
     printf 'Missing required app file: %s\n' "$source_dir/$file" >&2; exit 1

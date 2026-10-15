@@ -38,7 +38,12 @@ sections.addEventListener('focusout',e=>{const el=e.target;if(!el.matches('.name
 sections.addEventListener('keydown',e=>{if(e.target.isContentEditable&&e.key==='Enter'){e.preventDefault();e.target.blur()}});
 heading.addEventListener('blur',()=>{state.title=heading.textContent.trim().slice(0,80)||'Congelador';heading.textContent=state.title;save()});heading.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();heading.blur()}});
 document.getElementById('addCategory').onclick=()=>{state.categories.push({id:uid(),name:'Nova categoria',items:[]});render()};
-document.getElementById('print').onclick=()=>{document.activeElement?.blur();window.print()};
+const isAppleMobile=/iPhone|iPad|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+document.getElementById('print').onclick=()=>{
+ document.activeElement?.blur();
+ if(isAppleMobile){preparePDF();return}
+ window.print();
+};
 document.getElementById('export').onclick=()=>{const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='congelador-backup.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)};
 document.getElementById('import').onchange=async e=>{const file=e.target.files[0];if(!file)return;try{const data=JSON.parse(await file.text());if(!valid(data))throw Error('Formato inválido');if(confirm('Substituir a lista atual pelos dados importados?')){state=data;heading.textContent=state.title;render();notice('Lista importada')}}catch(err){alert('Erro ao importar: '+err.message)}e.target.value=''};
 window.addEventListener('resize',checkPrintFit);render();
@@ -112,3 +117,31 @@ if('serviceWorker'in navigator){
  document.addEventListener('visibilitychange',()=>{if(!document.hidden)checkForUpdate()});
  window.addEventListener('online',()=>checkForUpdate());
 }
+
+const pdfPanel=document.getElementById('pdfPanel'),pdfMessage=document.getElementById('pdfMessage');
+const sharePDF=document.getElementById('sharePDF'),savePDF=document.getElementById('savePDF');
+let pdfFile=null,pdfURL=null,pdfBusy=false;
+async function preparePDF(){
+ if(pdfBusy)return;
+ document.activeElement?.blur();save();
+ pdfBusy=true;pdfPanel.hidden=false;sharePDF.hidden=true;savePDF.hidden=true;
+ pdfMessage.textContent='A preparar o PDF…';
+ document.getElementById('makePDF').disabled=true;
+ try{
+  const snapshot=JSON.parse(JSON.stringify(state));
+  const blob=await createInventoryPDF(snapshot);
+  pdfFile=new File([blob],'Congelador.pdf',{type:'application/pdf'});
+  if(pdfURL)URL.revokeObjectURL(pdfURL);
+  pdfURL=URL.createObjectURL(blob);savePDF.href=pdfURL;savePDF.hidden=false;
+  sharePDF.hidden=!(navigator.share&&navigator.canShare?.({files:[pdfFile]}));
+  pdfMessage.textContent='PDF pronto. Partilhe para imprimir ou guarde em Ficheiros e abra o PDF para imprimir. O PDF inclui a lista atual.';
+ }catch(error){pdfMessage.textContent='Não foi possível criar o PDF. Tente novamente.'}
+ finally{pdfBusy=false;document.getElementById('makePDF').disabled=false}
+}
+document.getElementById('makePDF').onclick=preparePDF;
+document.getElementById('closePDF').onclick=()=>{pdfPanel.hidden=true};
+sharePDF.onclick=async()=>{
+ if(!pdfFile)return;
+ try{await navigator.share({files:[pdfFile]})}
+ catch(error){if(error.name!=='AbortError')pdfMessage.textContent='Não foi possível partilhar. Use Guardar PDF e abra o ficheiro para imprimir.'}
+};

@@ -7,7 +7,7 @@ const root = path.resolve(__dirname, '..');
 let release = 1;
 const server = http.createServer((req, res) => {
   const name = new URL(req.url, 'http://localhost').pathname.slice(1) || 'index.html';
-  if (!['index.html','app.js','sw.js','style.css','manifest.webmanifest','icon.svg'].includes(name)) { res.writeHead(404).end(); return; }
+  if (!['index.html','app.js','print-pdf.js','sw.js','style.css','manifest.webmanifest','icon.svg'].includes(name)) { res.writeHead(404).end(); return; }
   let body = fs.readFileSync(path.join(root, name), 'utf8');
   if (name === 'sw.js') body = body.replace(/congelador-pwa-v\d+/g, `congelador-pwa-test-${release}`);
   if (name === 'index.html') body = body.replace('<body>', `<body data-release="${release}">`);
@@ -61,6 +61,36 @@ const server = http.createServer((req, res) => {
     await page.locator('#checkUpdate').click();
     await page.waitForFunction(() => !document.querySelector('#checkUpdate').disabled);
     console.log('PASS: update waits for click, reloads new assets, preserves edits, works offline');
+    await page.locator('#makePDF').click();
+    await page.locator('#savePDF').waitFor({state:'visible'});
+    const generated=await page.evaluate(async()=>Array.from(new Uint8Array(await (await fetch(document.querySelector('#savePDF').href)).arrayBuffer())));
+    const generatedBytes=Buffer.from(generated);
+    assert.ok(generatedBytes.toString('latin1').startsWith('%PDF-1.4'));
+    assert.equal((generatedBytes.toString('latin1').match(/\/Type \/Page\b/g)||[]).length,1);
+    if(process.env.PDF_QA_OUTPUT)fs.writeFileSync(process.env.PDF_QA_OUTPUT,generatedBytes);
+    console.log('PASS: offline PDF export produces one A4 page');
+    const longPDF=await page.evaluate(async()=>{
+      const data={title:'Lista extensa',categories:[{name:'Produtos',items:Array.from({length:80},(_,i)=>({name:`Produto ${i+1}`,quantity:2.5,half:true}))}]};
+      const blob=await createInventoryPDF(data);
+      return Array.from(new Uint8Array(await blob.arrayBuffer()));
+    });
+    assert.ok((Buffer.from(longPDF).toString('latin1').match(/\/Type \/Page\b/g)||[]).length>1,'long inventory continues across pages');
+    console.log('PASS: long inventory PDF paginates');
+    const iosContext=await browser.newContext({userAgent:'Mozilla/5.0 (iPhone; CPU iPhone OS 27_0 like Mac OS X) AppleWebKit/605.1.15 Version/27.0 Mobile/15E148 Safari/604.1',hasTouch:true,isMobile:true,viewport:{width:393,height:852}});
+    const iosPage=await iosContext.newPage();
+    await iosPage.addInitScript(()=>{
+      window.print=()=>{throw Error('iPhone must not use blocked window.print')};
+      Object.defineProperty(navigator,'standalone',{value:true});
+    });
+    const iosErrors=[];iosPage.on('pageerror',e=>iosErrors.push(e.message));
+    await iosPage.goto(`http://127.0.0.1:${server.address().port}`);
+    await iosPage.locator('.name').first().click();await iosPage.keyboard.type('Peixe fresco');
+    await iosPage.locator('#print').click();
+    await iosPage.locator('#savePDF').waitFor({state:'visible'});
+    assert.equal(await iosPage.evaluate(()=>JSON.parse(localStorage.getItem('congelador-v1')).categories[0].items[0].name),'Peixe fresco');
+    assert.deepEqual(iosErrors,[]);
+    await iosContext.close();
+    console.log('PASS: iPhone standalone path offers PDF without invoking window.print and saves edits');
     const touchContext = await browser.newContext({hasTouch:true,isMobile:true,viewport:{width:390,height:844}});
     const touchPage = await touchContext.newPage();
     await touchPage.goto(`http://127.0.0.1:${server.address().port}`);

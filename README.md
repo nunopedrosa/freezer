@@ -16,9 +16,9 @@ The default destination is `~/freezer.trekm.com`. If the domain uses a different
 ./scripts/deploy.sh /home/your-user/freezer.trekm.com
 ```
 
-The script copies only the six public app files, excluding Git history, tests, documentation, and ZIP archives. Existing unrelated files (including `.htaccess` and `.well-known`) are preserved. Files are replaced individually, with `sw.js` published last. Configure the domain's web directory and HTTPS in DreamHost before serving the app. Increment the cache version in `sw.js` whenever deploying changed app assets.
+The script copies only the seven public app files, excluding Git history, tests, documentation, and ZIP archives. Existing unrelated files (including `.htaccess` and `.well-known`) are preserved. Files are replaced individually, with `sw.js` published last. Configure the domain's web directory and HTTPS in DreamHost before serving the app. Increment the cache version in `sw.js` whenever deploying changed app assets.
 
-Alternatively, upload the six public app files to an HTTPS-enabled folder on your web host. Open `index.html` in a browser. On iOS use Safari > Share > Add to Home Screen. The app works offline after its first successful load.
+Alternatively, upload the seven public app files to an HTTPS-enabled folder on your web host. Open `index.html` in a browser. On iOS use Safari > Share > Add to Home Screen. The app works offline after its first successful load.
 
 ## Usage
 Tap product/category names to edit. Use `+` and `−` to adjust quantities; toggle `1`/`½` to switch increments. `×` removes an item, and the category arrows reorder categories. Use Print/PDF for A4 portrait output, and Export/Import for JSON backup.
@@ -44,3 +44,7 @@ The app checks for updates on launch, when returning to it, and when the connect
 When deploying changed assets, increment the `CACHE` version in `sw.js` and upload the complete app together. Existing installations from v0.2/v3 may need all app tabs/windows closed and reopened once to pick up these new update controls.
 
 Browser integration checks: `node tests/browser.cjs` with Playwright installed. Optional `PLAYWRIGHT_PATH` and `CHROMIUM_PATH` environment variables select an existing Playwright installation and Chromium executable. The checks use a temporary local HTTP server and isolated browser storage.
+
+## Printing on iPhone
+
+On iPhone/iPad, **Imprimir / PDF** creates an A4 PDF directly on the device, avoiding the browser print dialog. Choose **Partilhar PDF** when available, or **Guardar PDF** and open it in Files to print. **Criar PDF** offers the same option on other devices. The PDF uses the current inventory, works offline, hides unused quantities, and paginates long lists. PDF pages are high-resolution images, so text in this export is not searchable/selectable. Desktop browser printing remains available.

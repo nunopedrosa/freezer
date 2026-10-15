@@ -1,5 +1,5 @@
-const CACHE='congelador-pwa-v8';
-const ASSETS=['./','./index.html','./style.css','./app.js','./manifest.webmanifest','./icon.svg'];
+const CACHE='congelador-pwa-v9';
+const ASSETS=['./','./index.html','./style.css','./app.js','./print-pdf.js','./manifest.webmanifest','./icon.svg'];
 self.addEventListener('install',event=>{
  event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(ASSETS.map(url=>new Request(url,{cache:'reload'})))));
 });
