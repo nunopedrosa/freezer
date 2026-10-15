@@ -3,7 +3,22 @@
 Static, offline-first freezer inventory PWA, in Portuguese, based on `ListaCongeladorExemplo.pdf`.
 
 ## Deploy
-Upload the contents of this directory to an HTTPS-enabled folder on your web host (e.g. DreamHost). Open `index.html` in a browser. On iOS use Safari > Share > Add to Home Screen. The app works offline after its first successful load.
+For DreamHost, run these commands on the server from the cloned `freezer` directory after pulling the latest changes:
+
+```sh
+./scripts/deploy.sh --dry-run
+./scripts/deploy.sh
+```
+
+The default destination is `~/freezer.trekm.com`. If the domain uses a different web directory, pass that path:
+
+```sh
+./scripts/deploy.sh /home/your-user/freezer.trekm.com
+```
+
+The script copies only the six public app files, excluding Git history, tests, documentation, and ZIP archives. Existing unrelated files (including `.htaccess` and `.well-known`) are preserved. Files are replaced individually, with `sw.js` published last. Configure the domain's web directory and HTTPS in DreamHost before serving the app. Increment the cache version in `sw.js` whenever deploying changed app assets.
+
+Alternatively, upload the six public app files to an HTTPS-enabled folder on your web host. Open `index.html` in a browser. On iOS use Safari > Share > Add to Home Screen. The app works offline after its first successful load.
 
 ## Usage
 Tap product/category names to edit. Use `+` and `−` to adjust quantities; toggle `1`/`½` to switch increments. `×` removes an item, and the category arrows reorder categories. Use Print/PDF for A4 portrait output, and Export/Import for JSON backup.
