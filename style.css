@@ -13,22 +13,27 @@
 }
 @page{size:A4 portrait;margin:12mm}
 @media print{
- html,body{background:white;margin:0;padding:0}
+ html,body{background:white;margin:0;padding:0;-webkit-text-size-adjust:100%;text-size-adjust:100%}
  .toolbar,.hint,.controls,.cattools,.additem,#status{display:none!important}
  .sheet{width:auto;height:auto;min-height:0;max-height:none;box-shadow:none;margin:0;padding:0;overflow:visible;font-family:"Avenir Next Condensed","Arial Narrow","Liberation Sans Narrow",Arial,sans-serif}
- .sections{display:flex!important;flex-direction:column!important;gap:7mm!important}
- .section-pair{display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;column-gap:8mm!important;break-inside:avoid}
+ /* Normal block flow lets the list paginate independently of its heading. */
+ .sections{display:block!important}
+ .section-pair + .section-pair{margin-top:6mm}
+ /* Avoid nested grid/flex fragmentation in iOS Safari's print renderer. */
+ .section-pair{display:table!important;table-layout:fixed;width:100%;border-collapse:collapse;break-inside:auto;page-break-inside:auto}
+ .category{display:table-cell;width:50%;vertical-align:top;padding-right:4mm}
+ .category + .category{padding-left:4mm;padding-right:0}
  .category{padding-top:3mm;break-inside:auto}
  .section-pair:first-child .category{border-top:none;padding-top:0}
- .cathead{margin-bottom:2mm}
- .item{min-height:9mm;gap:1.5mm;break-inside:avoid}
- .name{font-size:12pt;line-height:1.2;padding:0;overflow-wrap:break-word}
- .quantity{font-family:Arial,Helvetica,sans-serif;font-size:10pt;letter-spacing:-.4px}
+ .cathead{display:block;margin-bottom:2mm}
+ .item{display:table;width:100%;table-layout:auto;min-height:0;border-collapse:collapse;break-inside:avoid}
+ .name{display:table-cell;vertical-align:middle;font-size:12pt;line-height:1.2;padding:2.2mm 1.5mm 2.2mm 0;overflow-wrap:anywhere}
+ .quantity{display:table-cell;width:1%;vertical-align:middle;font-family:Arial,Helvetica,sans-serif;font-size:10pt;letter-spacing:-.4px}
  .quantity .unused{visibility:hidden}
  .quantity .selected{color:black;font-weight:900}
  .catname{font-size:14pt;line-height:1.15}
- h1{font-size:20pt;line-height:1.2}
- .legend{font-size:11pt;margin:2mm 0 7mm}
+ h1{font-size:20pt;line-height:1.2;break-after:auto;page-break-after:auto}
+ .legend{font-size:11pt;margin:2mm 0 6mm;break-after:auto;page-break-after:auto}
  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
 }
 

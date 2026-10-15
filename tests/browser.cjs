@@ -83,6 +83,13 @@ const server = http.createServer((req, res) => {
     assert.equal(await touchPage.evaluate(() => getSelection().toString()), 'Espadarte posta', 'touch selects all');
     await touchPage.keyboard.type('Peixe');
     assert.equal(await touchField.textContent(), 'Peixe');
+    for (const width of [390,794]) {
+      await touchPage.setViewportSize({width,height:844});
+      const pdf = await touchPage.pdf({preferCSSPageSize:true,scale:1});
+      const pageCount = (pdf.toString('latin1').match(/\/Type \/Page\b/g)||[]).length;
+      assert.equal(pageCount,1, `sample prints on one A4 page at 100% from ${width}px viewport`);
+    }
+    console.log('PASS: A4 print at 100% from phone and desktop widths');
     await touchContext.close();
     console.log('PASS: touch selects all and replaces text');
   } finally { await browser.close(); server.close(); }
