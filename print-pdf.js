@@ -21,7 +21,10 @@ async function createInventoryPDF(data){
   ctx.fillStyle='white';ctx.fillRect(0,0,width,height);ctx.fillStyle='#17232b';ctx.textBaseline='top';
   ctx.font=`26px ${font}`;
   const title=lines(data.title,width-2*margin);title.forEach((line,i)=>ctx.fillText(line,(width-ctx.measureText(line).width)/2,margin+i*30));
-  y=margin+title.length*30+24;
+  const legend='½  ①②③④⑤⑥⑦⑧⑨';
+  ctx.font='15px Arial';
+  ctx.fillText(legend,(width-ctx.measureText(legend).width)/2,margin+title.length*30+4);
+  y=margin+title.length*30+44;
  }
  async function finish(){
   const blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/jpeg',0.95));
@@ -39,6 +42,13 @@ async function createInventoryPDF(data){
    headers.forEach((h,i)=>textLines(h,margin+i*(col+gutter),y,23));y+=headHeight;
   };
   if(y+headHeight+36>height-margin){await finish();begin()}
+  else if(index>0){
+   ctx.strokeStyle='#a5a5a5';ctx.lineWidth=1;
+   pair.forEach((_,i)=>{
+    const x=margin+i*(col+gutter);
+    ctx.beginPath();ctx.moveTo(x,y-10);ctx.lineTo(x+col,y-10);ctx.stroke();
+   });
+  }
   drawHeaders();
   for(let row=0;row<Math.max(...pair.map(c=>c.items.length));row++){
    ctx.font=`16px ${font}`;

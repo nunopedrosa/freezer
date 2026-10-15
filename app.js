@@ -39,6 +39,7 @@ sections.addEventListener('keydown',e=>{if(e.target.isContentEditable&&e.key==='
 heading.addEventListener('blur',()=>{state.title=heading.textContent.trim().slice(0,80)||'Congelador';heading.textContent=state.title;save()});heading.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();heading.blur()}});
 document.getElementById('addCategory').onclick=()=>{state.categories.push({id:uid(),name:'Nova categoria',items:[]});render()};
 const isAppleMobile=/iPhone|iPad|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+document.getElementById('makePDF').hidden=isAppleMobile;
 document.getElementById('print').onclick=()=>{
  document.activeElement?.blur();
  if(isAppleMobile){preparePDF();return}

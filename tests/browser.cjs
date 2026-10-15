@@ -84,6 +84,8 @@ const server = http.createServer((req, res) => {
     });
     const iosErrors=[];iosPage.on('pageerror',e=>iosErrors.push(e.message));
     await iosPage.goto(`http://127.0.0.1:${server.address().port}`);
+    assert.equal(await iosPage.locator('#makePDF').isVisible(),false,'iPhone has no duplicate PDF button');
+    assert.equal(await iosPage.locator('#print').isVisible(),true);
     await iosPage.locator('.name').first().click();await iosPage.keyboard.type('Peixe fresco');
     await iosPage.locator('#print').click();
     await iosPage.locator('#savePDF').waitFor({state:'visible'});
