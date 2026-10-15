@@ -64,6 +64,20 @@ const server = http.createServer((req, res) => {
     const touchContext = await browser.newContext({hasTouch:true,isMobile:true,viewport:{width:390,height:844}});
     const touchPage = await touchContext.newPage();
     await touchPage.goto(`http://127.0.0.1:${server.address().port}`);
+    for (const width of [320,390,430,700]) {
+      await touchPage.setViewportSize({width,height:844});
+      const layout = await touchPage.evaluate(() => ({
+        viewport:innerWidth,
+        pageWidth:document.documentElement.scrollWidth,
+        names:[...document.querySelectorAll('.name')].map(el=>({width:el.getBoundingClientRect().width,height:el.getBoundingClientRect().height})),
+        categories:[...document.querySelectorAll('.category')].slice(0,2).map(el=>({x:el.getBoundingClientRect().x,y:el.getBoundingClientRect().y}))
+      }));
+      assert.ok(layout.names.every(name=>name.width>=250 && name.height<65), `readable product names at ${width}px: ${JSON.stringify(layout.names[0])}`);
+      assert.ok(layout.pageWidth<=layout.viewport, `no horizontal overflow at ${width}px`);
+      assert.equal(layout.categories[0].x,layout.categories[1].x);
+      assert.ok(layout.categories[1].y>layout.categories[0].y);
+    }
+    await touchPage.setViewportSize({width:390,height:844});
     const touchField = touchPage.locator('.name').first();
     await touchField.tap();
     assert.equal(await touchPage.evaluate(() => getSelection().toString()), 'Espadarte posta', 'touch selects all');
