@@ -48,3 +48,7 @@ Browser integration checks: `node tests/browser.cjs` with Playwright installed. 
 ## Printing on iPhone
 
 On iPhone/iPad, **Imprimir / PDF** creates an A4 PDF directly on the device, avoiding the browser print dialog. Choose **Partilhar PDF** when available, or **Guardar PDF** and open it in Files to print. **Criar PDF** offers the same option on other devices; it is hidden on iPhone/iPad to avoid duplicate buttons. The PDF includes the quantity legend below the title and separator lines between category pairs. The PDF uses the current inventory, works offline, hides unused quantities, and paginates long lists. PDF pages are high-resolution images, so text in this export is not searchable/selectable. Desktop browser printing remains available.
+
+## Shared deployment command (2026-11-01)
+
+See [the current deployment contract](docs/SHARED_DEPLOYMENT.md) and `scripts/deploy-profile.sh`. This supersedes older script flags, SSH-only wrappers and broad deletion instructions below/above; hosting coordinates and app-specific private/release requirements still apply. No deployment is authorized by source changes.
