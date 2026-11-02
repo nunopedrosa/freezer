@@ -1,8 +1,8 @@
 # App-owned publication contract; common engine: BaseCentral deploy 1.0.0.
 APP_ID=freezer
 SOURCE_SUBDIR=.
-DEFAULT_DESTINATION="${DEPLOY_SITE:-$HOME/freezer.trekm.com}"
-DEPLOY_URL=https://freezer.trekm.com
+DEFAULT_DESTINATION="${DEPLOY_SITE:-$HOME/freezer.basecentral.link}"
+DEPLOY_URL=https://freezer.basecentral.link
 PUBLIC_FILES=$(cat <<'PUBLIC_FILES'
 app.js
 icon.svg
